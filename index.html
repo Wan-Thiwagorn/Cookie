@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>จานคุกกี้ 🍪</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Literata:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#1c1830;
+    --bg2:#3a2a3f;
+    --plate:#f7ecd9;
+    --plate-rim:#d9bf95;
+    --plate-rim2:#c4a877;
+    --choc:#7a4a26;
+    --choc-dark:#4a2c15;
+    --oat:#c99a5b;
+    --sugar:#f0dcb0;
+    --gold:#e7ac3f;
+    --pink:#ff8aa6;
+    --ink:#2c1c10;
+    --cream-text:#f6ecdd;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:'Literata',Georgia,serif;
+    background:
+      radial-gradient(ellipse at 50% -10%, var(--bg2), transparent 60%),
+      var(--bg1);
+    overflow:hidden;
+    color:var(--cream-text);
+  }
+
+  #stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+  .star{position:absolute;background:#fff;border-radius:50%;opacity:.4;animation:twinkle 3s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:.15;}50%{opacity:.6;}}
+
+  #scene{
+    position:relative;z-index:1;
+    width:100%;height:100vh;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    transition:filter .5s;
+    padding:20px;
+  }
+  h1{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    color:var(--gold);
+    font-size:1.7rem;
+    margin:0 0 4px;
+    text-align:center;
+    letter-spacing:.5px;
+  }
+  p.sub{
+    color:#d8c4b0;
+    margin:0 0 26px;
+    font-size:.95rem;
+    text-align:center;
+    font-style:italic;
+  }
+
+  #plateWrap{
+    position:relative;
+    width:min(360px,86vw);
+    height:min(360px,86vw);
+  }
+  #plate{
+    position:absolute;inset:0;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 38% 30%, #fffdf8, var(--plate) 55%, #ecd7ac 100%);
+    box-shadow:
+      0 18px 40px rgba(0,0,0,.45),
+      inset 0 0 0 9px var(--plate-rim),
+      inset 0 0 0 11px var(--plate-rim2),
+      inset 0 0 30px rgba(140,100,50,.15);
+  }
+  #plate::before{
+    content:"";
+    position:absolute;inset:14%;
+    border-radius:50%;
+    box-shadow:inset 0 0 0 2px rgba(180,140,80,.25);
+  }
+  #cookieLayer{
+    position:absolute;inset:0;
+  }
+  .cookie{
+    position:absolute;
+    width:62px;height:62px;
+    border-radius:50%;
+    cursor:pointer;
+    transition:transform .18s ease, opacity .3s ease;
+    filter:drop-shadow(0 4px 5px rgba(0,0,0,.25));
+  }
+  .cookie:hover{transform:scale(1.1) rotate(var(--rot)) !important;}
+  .cookie.eaten{
+    transform:scale(0) rotate(calc(var(--rot) + 40deg)) !important;
+    opacity:0;
+    pointer-events:none;
+  }
+  .base-choc{
+    background:radial-gradient(circle at 35% 30%, #cf9a5f, var(--choc) 65%, var(--choc-dark) 100%);
+  }
+  .base-oat{
+    background:radial-gradient(circle at 35% 30%, #e6c584, var(--oat) 65%, #a9762f 100%);
+  }
+  .base-sugar{
+    background:radial-gradient(circle at 35% 30%, #fff7e2, var(--sugar) 60%, #d9b96e 100%);
+  }
+  .chip{position:absolute;width:7px;height:7px;border-radius:2px;background:#3a2010;transform:rotate(20deg);}
+  .raisin{position:absolute;width:5px;height:7px;border-radius:50%;background:#5c2e12;}
+  .sprinkle{position:absolute;width:9px;height:3px;border-radius:2px;}
+
+  #reaction{
+    position:fixed;
+    z-index:60;
+    font-family:'Fredoka',sans-serif;
+    font-weight:600;
+    color:var(--pink);
+    font-size:1.4rem;
+    pointer-events:none;
+    text-shadow:0 2px 6px rgba(0,0,0,.5);
+    animation:floatUp 1s ease forwards;
+  }
+  @keyframes floatUp{
+    0%{transform:translate(-50%,0) scale(.7);opacity:0;}
+    15%{opacity:1;transform:translate(-50%,-10px) scale(1.05);}
+    100%{transform:translate(-50%,-70px) scale(1);opacity:0;}
+  }
+
+  .crumb{
+    position:fixed;
+    width:6px;height:6px;
+    background:#7a4a24;
+    border-radius:1px;
+    pointer-events:none;
+    animation:fall .6s ease forwards;
+    z-index:55;
+  }
+  @keyframes fall{to{transform:translateY(45px) rotate(200deg);opacity:0;}}
+
+  /* Letter */
+  #letterWrap{
+    position:fixed;inset:0;
+    display:none;
+    align-items:center;justify-content:center;
+    background:rgba(20,14,10,0.55);
+    backdrop-filter:blur(4px);
+    z-index:50;
+    padding:20px;
+  }
+  #envelope{
+    width:230px;height:160px;
+    background:linear-gradient(#fdf6e8,#f0e0bd);
+    border:2px solid var(--gold);
+    border-radius:8px;
+    position:relative;
+    cursor:pointer;
+    box-shadow:0 25px 50px rgba(0,0,0,.45);
+    animation:pop .5s ease;
+  }
+  @keyframes pop{
+    from{transform:scale(.4) rotate(-8deg);opacity:0;}
+    to{transform:scale(1) rotate(0);opacity:1;}
+  }
+  #envelope::before{
+    content:"✉";
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:3.4rem;color:var(--gold);
+  }
+  #envelope span{
+    position:absolute;
+    bottom:-32px;left:0;right:0;
+    text-align:center;
+    color:#fff;
+    font-family:'Fredoka',sans-serif;
+    font-size:.9rem;
+  }
+
+  #letterContent{
+    display:none;
+    width:min(520px,90vw);
+    max-height:82vh;
+    overflow-y:auto;
+    background:#fffaf0;
+    border-radius:12px;
+    padding:38px 34px;
+    box-shadow:0 30px 70px rgba(0,0,0,.5);
+    color:var(--ink);
+    line-height:1.9;
+    position:relative;
+    animation:unfold .55s ease;
+  }
+  @keyframes unfold{
+    from{transform:scaleY(.08);opacity:0;}
+    to{transform:scaleY(1);opacity:1;}
+  }
+  #letterContent h2{
+    margin-top:0;
+    text-align:center;
+    color:#8a5a2e;
+    font-family:'Fredoka',sans-serif;
+    font-size:1.35rem;
+  }
+  #letterContent p{margin:0 0 14px;}
+  #letterContent .sign{
+    text-align:right;
+    font-style:italic;
+    margin-top:20px;
+    color:#8a5a2e;
+  }
+
+  /* Jumpscare */
+  #flash{
+    position:fixed;inset:0;background:#fff;
+    display:none;z-index:199;
+  }
+  #jumpscare{
+    position:fixed;inset:0;
+    background:#000;
+    display:none;
+    align-items:center;justify-content:center;
+    z-index:200;
+  }
+  #jumpscare svg{
+    width:72vw;max-width:540px;
+    filter:drop-shadow(0 0 50px red);
+    animation:shake .06s infinite;
+  }
+  @keyframes shake{
+    0%{transform:translate(0,0) scale(1);}
+    25%{transform:translate(-8px,5px) scale(1.02);}
+    50%{transform:translate(8px,-5px) scale(1.04);}
+    75%{transform:translate(-5px,-8px) scale(1.01);}
+    100%{transform:translate(5px,8px) scale(1.03);}
+  }
+  #jumpText{
+    position:absolute;
+    bottom:8%;
+    width:100%;
+    text-align:center;
+    color:#ff2b2b;
+    font-family:Impact,'Arial Black',sans-serif;
+    font-size:clamp(2rem,7vw,3.4rem);
+    letter-spacing:4px;
+    text-shadow:0 0 25px #ff0000;
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div id="scene">
+  <h1>ทานคุกกี้ให้อร่อยนะ 🍪</h1>
+  <p class="sub">แตะที่คุกกี้แต่ละชิ้นดูสิ...</p>
+  <div id="plateWrap">
+    <div id="plate"></div>
+    <div id="cookieLayer"></div>
+  </div>
+</div>
+
+<div id="letterWrap">
+  <div id="envelope"><span>แตะเพื่อเปิดอ่าน</span></div>
+  <div id="letterContent">
+    <h2>ถึงเพื่อนคนพิเศษของฉัน</h2>
+    <p id="letterBody"></p>
+  </div>
+</div>
+
+<div id="flash"></div>
+<div id="jumpscare">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="95" fill="#f3f3f3"/>
+    <ellipse cx="65" cy="85" rx="19" ry="28" fill="#000"/>
+    <ellipse cx="135" cy="85" rx="19" ry="28" fill="#000"/>
+    <ellipse cx="65" cy="78" rx="6" ry="9" fill="#b00"/>
+    <ellipse cx="135" cy="78" rx="6" ry="9" fill="#b00"/>
+    <path d="M50 148 Q100 200 150 148 Q100 178 50 148 Z" fill="#000"/>
+    <path d="M58 150 L68 167 L78 150 L88 169 L100 150 L112 169 L122 150 L132 167 L142 150"
+          fill="none" stroke="#fff" stroke-width="4"/>
+  </svg>
+  <div id="jumpText">หลอกเล่นน้า!! 😜</div>
+</div>
+
+<script>
+/* background stars */
+const starsWrap = document.getElementById('stars');
+for(let i=0;i<40;i++){
+  const s = document.createElement('div');
+  s.className='star';
+  const size = Math.random()*2+1;
+  s.style.width=s.style.height=size+'px';
+  s.style.left=Math.random()*100+'%';
+  s.style.top=Math.random()*70+'%';
+  s.style.animationDelay=(Math.random()*3)+'s';
+  starsWrap.appendChild(s);
+}
+
+/* ---------- cookies, scattered messily ---------- */
+const layer = document.getElementById('cookieLayer');
+const TOTAL = 8;
+let eatenCount = 0;
+
+const toppingBuilders = [
+  // chocolate chip cookie
+  (el)=>{
+    el.classList.add('base-choc');
+    const spots = [[16,14],[34,10],[46,24],[14,36],[30,44],[46,42],[24,26]];
+    spots.forEach(([x,y])=>{
+      const c=document.createElement('div');
+      c.className='chip';
+      c.style.left=x+'px'; c.style.top=y+'px';
+      el.appendChild(c);
+    });
+  },
+  // oatmeal raisin cookie
+  (el)=>{
+    el.classList.add('base-oat');
+    const spots = [[14,16],[30,12],[44,20],[20,34],[38,40],[16,44]];
+    spots.forEach(([x,y])=>{
+      const r=document.createElement('div');
+      r.className='raisin';
+      r.style.left=x+'px'; r.style.top=y+'px';
+      r.style.transform=`rotate(${Math.random()*360}deg)`;
+      el.appendChild(r);
+    });
+  },
+  // sugar cookie with sprinkles
+  (el)=>{
+    el.classList.add('base-sugar');
+    const colors=['#ff8aa6','#7fd6c0','#ffd166','#8ab4ff'];
+    for(let i=0;i<8;i++){
+      const s=document.createElement('div');
+      s.className='sprinkle';
+      s.style.background=colors[i%colors.length];
+      s.style.left=(6+Math.random()*46)+'px';
+      s.style.top=(6+Math.random()*46)+'px';
+      s.style.transform=`rotate(${Math.random()*360}deg)`;
+      el.appendChild(s);
+    }
+  }
+];
+
+/* Scatter positions: jitter within angular slices so cookies don't
+   all pile in the center, but still look randomly thrown on the plate */
+function scatterPositions(n){
+  const positions=[];
+  const cx=50, cy=50; // percent center of plateWrap
+  for(let i=0;i<n;i++){
+    const angle = (Math.PI*2/n)*i + (Math.random()*0.9-0.45);
+    const radius = 14 + Math.random()*17; // percent radius range
+    const x = cx + radius*Math.cos(angle) - 8; // -8 to roughly center the cookie box
+    const y = cy + radius*Math.sin(angle) - 8;
+    positions.push({x,y});
+  }
+  return positions;
+}
+
+const positions = scatterPositions(TOTAL);
+const reactions = ["งั่มๆ","อร่อยอ่ะ","หม่ำ~","กรุบกริบ!","อร่อยจุงเบย","คำโต!","ฟินสุดๆ","หวานเบาๆ อร่อย"];
+let lastReaction = -1;
+
+for(let i=0;i<TOTAL;i++){
+  const cookie = document.createElement('div');
+  cookie.className = 'cookie';
+  const rot = Math.random()*360;
+  const scale = 0.9 + Math.random()*0.3;
+  cookie.style.left = positions[i].x + '%';
+  cookie.style.top = positions[i].y + '%';
+  cookie.style.setProperty('--rot', rot+'deg');
+  cookie.style.transform = `rotate(${rot}deg) scale(${scale})`;
+  toppingBuilders[i % toppingBuilders.length](cookie);
+  cookie.addEventListener('click', eatCookie);
+  layer.appendChild(cookie);
+}
+
+function eatCookie(e){
+  const cookie = e.currentTarget;
+  if(cookie.classList.contains('eaten')) return;
+  cookie.classList.add('eaten');
+
+  // crumbs
+  const rect = cookie.getBoundingClientRect();
+  for(let i=0;i<6;i++){
+    const crumb = document.createElement('div');
+    crumb.className = 'crumb';
+    crumb.style.left = (rect.left + rect.width/2 + (Math.random()*30-15)) + 'px';
+    crumb.style.top = (rect.top + rect.height/2) + 'px';
+    document.body.appendChild(crumb);
+    setTimeout(()=>crumb.remove(),650);
+  }
+
+  // playful reaction text, never the same one twice in a row
+  let idx;
+  do{ idx = Math.floor(Math.random()*reactions.length); }while(idx===lastReaction && reactions.length>1);
+  lastReaction = idx;
+  const reaction = document.createElement('div');
+  reaction.id='reaction';
+  reaction.textContent = reactions[idx];
+  reaction.style.left = (rect.left+rect.width/2)+'px';
+  reaction.style.top = (rect.top)+'px';
+  document.body.appendChild(reaction);
+  setTimeout(()=>reaction.remove(),1000);
+
+  eatenCount++;
+  if(eatenCount === TOTAL){
+    setTimeout(showLetter, 700);
+  }
+}
+
+/* ---------- letter ---------- */
+const letterText = `
+ช่วงนี้เธอเป็นยังไงบ้าง ฉันเฝ้าดูอยู่ห่างๆ และรู้สึกว่าเธอดูเหนื่อยกว่าปกติ
+เลยอยากทำอะไรเล็กๆ น้อยๆ ให้เธอได้ยิ้มบ้าง ก็เลยจัดคุกกี้ให้กินสักหน่อย
+หวังว่าจะช่วยให้อารมณ์ดีขึ้นได้บ้างนะ
+
+จริงๆ แล้วฉันอยากบอกเธอมาสักพักแล้วว่า ไม่ว่าเรื่องอะไรจะเข้ามาในชีวิตเธอ
+ไม่ว่าจะหนักหนาแค่ไหน เธอไม่ต้องแบกมันไว้คนเดียวก็ได้ ฉันอยู่ตรงนี้เสมอ
+ถ้าอยากระบาย อยากบ่น หรือแค่อยากมีคนนั่งเงียบๆ อยู่ด้วย ฉันพร้อมเสมอนะ
+
+บางทีเราก็ลืมดูแลตัวเอง เพราะห่วงคนอื่นมากเกินไป
+เธอเองก็ต้องใจดีกับตัวเองบ้างเหมือนกัน กินข้าวให้ตรงเวลา นอนให้พอ
+และอย่าลืมว่าเธอเก่งกว่าที่คิดเยอะเลย
+
+ขอบคุณนะที่เป็นเพื่อนที่ดีของฉันมาตลอด และขอบคุณที่กินคุกกี้จนหมดจานด้วย 😊
+เดี๋ยวคราวหน้าจะทำอะไรอร่อยๆ มาเซอร์ไพรส์อีก...
+`;
+
+document.getElementById('letterBody').innerHTML =
+  letterText.trim().split('\n\n').map(p=>`<p>${p.trim().replace(/\n/g,'<br>')}</p>`).join('') +
+  '<div class="sign">ด้วยรักและห่วงใย</div>';
+
+function showLetter(){
+  document.getElementById('scene').style.filter = 'blur(5px)';
+  document.getElementById('letterWrap').style.display = 'flex';
+}
+
+document.getElementById('envelope').addEventListener('click', openEnvelope);
+
+function openEnvelope(){
+  document.getElementById('envelope').style.display = 'none';
+  document.getElementById('letterContent').style.display = 'block';
+  setTimeout(triggerJumpscare, 12000);
+}
+
+function triggerJumpscare(){
+  document.getElementById('letterWrap').style.display = 'none';
+
+  const flash = document.getElementById('flash');
+  flash.style.display = 'block';
+  setTimeout(()=>{ flash.style.display='none'; }, 90);
+
+  const js = document.getElementById('jumpscare');
+  js.style.display = 'flex';
+
+  playScream();
+
+  setTimeout(()=>{ js.style.animation = 'none'; }, 1600);
+}
+
+function playScream(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const master = ctx.createGain();
+    master.gain.value = 1.0; // loud
+    master.connect(ctx.destination);
+
+    // harsh shrieking oscillator
+    const o = ctx.createOscillator();
+    const og = ctx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(1400, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.7);
+    og.gain.setValueAtTime(0.9, ctx.currentTime);
+    og.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+    o.connect(og).connect(master);
+    o.start();
+    o.stop(ctx.currentTime + 0.9);
+
+    // white-noise burst layered underneath for extra shock
+    const bufferSize = ctx.sampleRate * 0.5;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){ data[i] = (Math.random()*2-1); }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.8, ctx.currentTime);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    noise.connect(noiseGain).connect(master);
+    noise.start();
+  }catch(err){ /* audio unavailable, ignore */ }
+}
+</script>
+</body>
+</html>
